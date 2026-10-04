@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"/>
+<meta name="theme-color" content="#0b0b12"/>
+<meta name="description" content="Dhandha — apne area of interest ke hisaab se AI-generated business ideas, tips aur guides. Hinglish me, roz naye posts."/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>Dhandha — AI Business Feed</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ======================= AUTH ======================= -->
+  <section class="screen" id="screen-auth">
+    <div class="auth-wrap">
+      <div class="brand">
+        <div class="brand-mark">ध</div>
+        <div>
+          <h1>Dhandha</h1>
+          <p>Apne interest ka business, AI se seekho</p>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <h2 id="authTitle">Dhandha me aapka swagat hai</h2>
+        <p class="auth-sub" id="authSub">Naam aur password daalo — bas, shuru kar dete hain.</p>
+
+        <form id="authForm" autocomplete="off" novalidate>
+          <label class="fld">
+            <span>Naam</span>
+            <input id="authName" type="text" placeholder="Jaise: Hitesh" required maxlength="30"/>
+          </label>
+
+          <label class="fld">
+            <span>Password</span>
+            <input id="authPw" type="password" placeholder="Kam se kam 4 character" required minlength="4"/>
+          </label>
+
+          <label class="fld" id="regionWrap">
+            <span>Aapka shahar / state <em>(optional — isse posts local ho jayenge)</em></span>
+            <input id="authRegion" type="text" placeholder="Jaise: Raipur, Chhattisgarh" maxlength="40"/>
+          </label>
+
+          <div class="err hidden" id="authError"></div>
+
+          <button class="btn primary big" id="authBtn" type="submit">Account banao</button>
+        </form>
+
+        <div class="auth-swap" id="authSwap">Pehle se account hai? <b>Login karo</b></div>
+      </div>
+
+      <div class="auth-foot">
+        <div class="af-item"><b>100%</b><span>on-device<br/>koi data bahar nahi jaata</span></div>
+        <div class="af-item"><b>27+</b><span>business<br/>topics</span></div>
+        <div class="af-item"><b>∞</b><span>posts<br/>khatam nahi honge</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= INTERESTS ======================= -->
+  <section class="screen" id="screen-interests">
+    <header class="topbar">
+      <div>
+        <div class="tb-hi">Namaste, <b id="greetName">dost</b> 👋</div>
+        <div class="tb-sub">Aapko kis cheez ka business jaanna hai?</div>
+      </div>
+      <button class="ghost-btn" id="skipInterests">Skip</button>
+    </header>
+
+    <div class="int-scroll">
+      <div class="int-hero">
+        <div class="int-badge">Step 1 of 1</div>
+        <h2>Area of interest chuno</h2>
+        <p>Ek ya <b>kai saare</b> select kar sakte ho — jitne chunoge, feed utni varied hogi. Baad me kabhi bhi add/remove kar sakte ho.</p>
+      </div>
+
+      <div id="existingInterests"></div>
+
+      <div class="custom-row">
+        <input id="customAdd" type="text" placeholder="Kuch aur? Type karo — jaise 'Paneer Shop', 'Driving School'…" maxlength="40"/>
+        <button class="btn primary" id="customAddBtn">Add</button>
+      </div>
+
+      <div id="sugBox"></div>
+
+      <div style="height:120px"></div>
+    </div>
+
+    <div class="int-footer">
+      <div class="int-count"><b id="interestCount">0</b> selected</div>
+      <button class="btn primary big" id="startFeedBtn" disabled>Mera feed banao →</button>
+    </div>
+  </section>
+
+  <!-- ======================= FEED ======================= -->
+  <section class="screen" id="screen-feed">
+    <header class="topbar feed-bar">
+      <div class="brand-mini"><span class="brand-mark sm">ध</span><b>Dhandha</b></div>
+      <div class="tb-actions">
+        <button class="icon-btn" id="feedAddInterest" title="Interest add karo">＋</button>
+        <button class="icon-btn" id="feedRefresh" title="Naya feed">⟳</button>
+      </div>
+    </header>
+
+    <div class="feed-scroll" id="feedScroll">
+      <div class="feed-list" id="feedList"></div>
+      <div class="skeleton hidden" id="feedSkeleton">
+        <div class="sk-card"></div><div class="sk-card"></div>
+        <div class="sk-note">AI aapke liye naye posts bana raha hai…</div>
+      </div>
+      <div class="feed-end">Aap feed ke end pe ho — scroll karte raho, naye posts bante rahenge ✨</div>
+    </div>
+  </section>
+
+  <!-- ======================= REELS ======================= -->
+  <section class="screen" id="screen-reels">
+    <div id="reelHost"></div>
+  </section>
+
+  <!-- ======================= SAVED ======================= -->
+  <section class="screen" id="screen-saved">
+    <header class="topbar">
+      <div><div class="tb-hi">Saved posts</div><div class="tb-sub">Jo aapne baad me padhne ke liye rakha</div></div>
+    </header>
+    <div class="pad-scroll"><div id="savedList"></div></div>
+  </section>
+
+  <!-- ======================= PROFILE ======================= -->
+  <section class="screen" id="screen-profile">
+    <header class="topbar">
+      <div><div class="tb-hi">Profile</div><div class="tb-sub">Aapka account aur settings</div></div>
+    </header>
+    <div class="pad-scroll">
+      <div class="pf-card">
+        <div class="pf-av" id="pfAv">🙂</div>
+        <div>
+          <div class="pf-name" id="pfName">—</div>
+          <div class="pf-region" id="pfRegion">—</div>
+        </div>
+      </div>
+
+      <div class="pf-stats" id="pfStat"></div>
+
+      <div class="pf-sec">
+        <div class="pf-sec-head"><b>Areas of interest</b><button class="link-btn" id="pfAddBtn">＋ Add</button></div>
+        <div class="area-pills" id="pfAreas"></div>
+      </div>
+
+      <div class="pf-sec">
+        <div class="pf-sec-head"><b>Location</b><button class="link-btn" id="pfRegionBtn">Badlo</button></div>
+        <p class="muted small">Location set karne pe posts me local market, festivals aur area-specific tips aate hain.</p>
+      </div>
+
+      <div class="pf-sec">
+        <div class="pf-sec-head"><b>Audio narration</b></div>
+        <p class="muted small" id="pfVoice">—</p>
+        <p class="muted small">Har post ke neeche <b>Suno</b> dabao — post aapko bol ke sunayi jayegi.</p>
+      </div>
+
+      <div class="pf-sec">
+        <div class="pf-sec-head"><b>Privacy</b></div>
+        <p class="muted small">Aapka naam, password aur saara data sirf aapke phone/browser me rehta hai. Koi server nahi, koi tracking nahi.</p>
+      </div>
+
+      <button class="btn danger wide" id="pfLogout">Logout</button>
+      <div class="pf-ver">Dhandha v1.0 • banaya gaya India me 🇮🇳</div>
+    </div>
+  </section>
+
+  <!-- ======================= BOTTOM NAV ======================= -->
+  <nav class="bottomnav hidden" id="bottomnav">
+    <button class="nav-item" data-go="feed"><span class="ni">🏠</span><b>Feed</b></button>
+    <button class="nav-item" data-go="reels"><span class="ni">▷</span><b>Reels</b></button>
+    <button class="nav-item" data-go="saved"><span class="ni">🔖</span><b>Saved</b></button>
+    <button class="nav-item" data-go="profile"><span class="ni">👤</span><b>Profile</b></button>
+  </nav>
+
+  <!-- ======================= AUDIO BAR ======================= -->
+  <div class="audiobar hidden" id="audioBar">
+    <div class="ab-prog"><i id="abProgress"></i></div>
+    <button class="ab-play" id="abPlay">❚❚</button>
+    <div class="ab-wave" id="abWave"></div>
+    <div class="ab-meta"><b id="abTitle">—</b><span id="abTag">—</span></div>
+    <button class="ab-close" id="abClose">✕</button>
+  </div>
+
+  <!-- ======================= POSTER OVERLAY ======================= -->
+  <div class="art-overlay" id="artOverlay"><img id="artOverlayImg" alt=""/><div class="ao-hint">Band karne ke liye tap karo</div></div>
+
+  <!-- ======================= ADD INTEREST SHEET ======================= -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="interestSheet">
+    <div class="sheet-grab"></div>
+    <div class="sheet-head"><h3>Naya interest add karo</h3><button class="icon-btn" id="interestSheetClose">✕</button></div>
+    <div class="custom-row">
+      <input id="sheetAreaInput" type="text" placeholder="Type karo — comma se multiple" maxlength="60"/>
+      <button class="btn primary" id="interestSheetAdd">Add</button>
+    </div>
+    <div class="mini-label">Ya yahan se chuno</div>
+    <div class="chips" id="sheetSuggestions"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="js/engine.js"></script>
+<script src="js/visual.js"></script>
+<script src="js/store.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
