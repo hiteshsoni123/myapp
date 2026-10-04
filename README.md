@@ -1,13 +1,15 @@
-# Dhandha — AI Business Feed 📱
+# Dhandha — Business Tips 📱 (v2)
 
-Apne **area of interest** (hotel, samosa, idli, kirana, gym…) ke hisaab se **AI-generated, scrollable business posts** — Hinglish me. Har post me hota hai:
+Instagram-style **vertical snap feed** — ek swipe, ek **chhoti, kaam ki tip**. Aapke **area of interest** (hotel, samosa, idli, kirana, gym…) aur **location** ke hisaab se.
 
-- 🖼️ **On-device generated poster** (procedural SVG art — koi stock image nahi)
-- 🔊 **Audio narration** — post ko bol ke sunao (Web Speech API, Hindi voice)
-- 🎬 **Reels mode** — post ka animated, full-screen slideshow (Instagram Reels jaisa)
-- ✍️ **Rich text** — investment breakdown, pricing math, checklists, myth-vs-reality, case studies
+- 📱 **Ek swipe = ek tip** (Instagram/TikTok jaisa scroll)
+- 🌐 **Hindi + English** dono me (toggle: हिं / EN / हिं+EN)
+- 🎨 Har card pe **on-device generated visual** (procedural SVG)
+- 🔊 **Suno** — tip bol ke sunao (text-to-speech)
+- 🔖 **Save** — baad me padhne ke liye (real, koi fake like/share nahi)
+- 📍 Location set karo → local festivals & market tips
 
-**100% on-device.** Koi server nahi, koi API key nahi, koi tracking nahi. Internet ke bina bhi chalta hai (PWA + Service Worker).
+**100% on-device.** Koi server nahi, koi API key nahi, koi fake number nahi. Offline bhi chalta hai (PWA).
 
 ---
 

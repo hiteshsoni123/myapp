@@ -308,6 +308,16 @@
     return s.replace(/\b[a-z]/g, c => c.toUpperCase());
   }
 
+  /* Hindi display names (Devanagari) for common items */
+  const HINDI = {
+    samosa:'समोसा', idli:'इडली', dosa:'डोसा', chai:'चाय', momos:'मोमोज़', poha:'पोहा',
+    jalebi:'जलेबी', biryani:'बिरयानी', chaat:'चाट', icecream:'आइसक्रीम', juice:'जूस',
+    bakery:'बेकरी', sweets:'मिठाई', tiffin:'टिफ़िन', hotel:'होटल', restaurant:'रेस्टोरेंट',
+    cafe:'कैफ़े', gym:'जिम', salon:'सैलून', tuition:'ट्यूशन', kirana:'किराना', medical:'मेडिकल',
+    mobileshop:'मोबाइल शॉप', printing:'प्रिंटिंग', laundry:'लॉन्ड्री', tailoring:'टेलरिंग',
+    dairy:'डेयरी', nursery:'नर्सरी', events:'इवेंट'
+  };
+
   /* Build a fully-resolved topic object from any user input */
   function resolveTopic(query) {
     const q = (query || '').trim();
@@ -344,6 +354,7 @@
     };
     if (base && base.staff) t.staff = base.staff;
     if (base && base.margin) t.margin = base.margin;
+    t.hindi = HINDI[t.key] || t.name;
     return t;
   }
 
@@ -1302,6 +1313,104 @@
 
   const PILLAR_ORDER = ['idea','investment','pricing','ops','staff','hygiene','legal','marketing','quality','location','season','mistakes','scale','digital','finance','competition','waste','customer','sourcing','menu','utility','risk','story','checklist','local','myth','habits'];
 
+  /* ================= CONCISE BILINGUAL TIP-CARDS ====================== */
+  /* Har card = EK punchy tip (Hindi + English) + ek real number.        */
+  const L = (hi, en) => ({ hi, en });
+
+  const CARD_PILLARS = [
+    { key:'margin', tag:L('💰 Margin','Margin'), tips:[
+      c=>{ const cost=round5(ri(c.r,c.t.unitCost[0],c.t.unitCost[1])); const price=round5(Math.max(c.t.unitPrice[0],Math.round(cost*rf(c.r,1.8,2.6)))); const p=price-cost;
+        return { hi:`${c.hn} की cost ${inr(cost)}, बिकता ${inr(price)} — हर ${c.t.unitName} पे ${inr(p)} कमाओ।`, en:`Costs ${inr(cost)}, sells at ${inr(price)} — you earn ${inr(p)} per ${c.t.unitName}.`, stat:{v:inr(p), hi:'प्रति '+c.t.unitName+' मुनाफ़ा', en:'profit per '+c.t.unitName} }; },
+      c=>{ const m=ri(c.r,c.t.margin[0],c.t.margin[1]); return { hi:`${c.hn} में healthy margin ${m}% है — इससे नीचे rate मत तोड़ो।`, en:`A healthy margin in ${c.en} is ${m}% — never price below it.`, stat:{v:m+'%', hi:'target margin', en:'target margin'} }; },
+      c=>{ const w=ri(c.r,3,8); return { hi:`Waste को cost में ${w}% ज़रूर जोड़ो — ${c.hn} में बर्बादी होती ही है।`, en:`Add ${w}% for waste in your cost — spoilage is inevitable in ${c.en}.`, stat:{v:w+'%', hi:'waste buffer', en:'waste buffer'} }; },
+      c=>({ hi:`Rate competitor से नहीं, अपने cost + margin से set करो।`, en:`Price from your cost + margin, not from your competitor.`, stat:null })
+    ]},
+    { key:'money', tag:L('🏦 Investment','Investment'), tips:[
+      c=>{ const s=round500(ri(c.r,c.t.setup[0],c.t.setup[1])); return { hi:`${c.hn} शुरू करने के लिए लगभग ${inr(s)} चाहिए — आधा equipment, आधा working capital।`, en:`Starting ${c.en} needs ~${inr(s)} — half equipment, half working capital.`, stat:{v:inr(s), hi:'कुल setup', en:'total setup'} }; },
+      c=>{ const pc=ri(c.r,20,30); return { hi:`Setup cost का ${pc}% अलग रखो working capital के लिए — वरना 3 महीने में cash ख़त्म।`, en:`Keep ${pc}% of setup aside as working capital — else cash runs dry in 3 months.`, stat:{v:pc+'%', hi:'working capital', en:'working capital'} }; },
+      c=>({ hi:`2nd-hand equipment से ${c.hn} में 40–60% बचाओ — नया बाद में लेना।`, en:`Save 40–60% with used equipment in ${c.en} — upgrade later.`, stat:{v:'40-60%', hi:'बचत', en:'saving'} }),
+      c=>({ hi:`Loan चाहिए तो MUDRA/PMEGP देखो — collateral-free मिलता है।`, en:`Need a loan? See MUDRA/PMEGP — collateral-free for small business.`, stat:null })
+    ]},
+    { key:'time', tag:L('⏰ Timing','Timing'), tips:[
+      c=>({ hi:`${c.hn} में peak ${c.t.peak[0]} है — उस वक़्त 100% focus सिर्फ़ selling पे।`, en:`Peak for ${c.en} is ${c.t.peak[0]} — focus only on selling then.`, stat:null }),
+      c=>({ hi:`Peak से पहले सारा prep ready रखो — rush में prep नहीं होता।`, en:`Finish all prep before peak — you can't prep during the rush.`, stat:null }),
+      c=>({ hi:`रोज़ same time खुलो — customer habit से आता है।`, en:`Open at the same time daily — customers come by habit.`, stat:null })
+    ]},
+    { key:'mkt', tag:L('📣 Free Marketing','Marketing'), tips:[
+      c=>({ hi:`Google Business Profile FREE है — "${c.en} near me" पे सबसे पहले दिखो।`, en:`Google Business Profile is free — rank first for "${c.en} near me".`, stat:null }),
+      c=>({ hi:`WhatsApp broadcast से एक message में सारे regular customers तक पहुँचो।`, en:`One WhatsApp broadcast reaches all your regulars at once.`, stat:null }),
+      c=>({ hi:`हर happy customer से review माँगो — review ही असली advertising है।`, en:`Ask every happy customer for a review — reviews are the real ads.`, stat:null }),
+      c=>({ hi:`"दोस्त को लाओ, दोनों को छूट" — सबसे सस्ती marketing।`, en:`"Bring a friend, both get a discount" — the cheapest marketing.`, stat:null })
+    ]},
+    { key:'mistake', tag:L('⚠️ Galti Mat Karo','Avoid This'), tips:[
+      c=>({ hi:`हिसाब न लिखना सबसे बड़ी ग़लती — रोज़ sales, ख़र्चा, waste लिखो।`, en:`Not writing accounts is the biggest mistake — log sales, cost, waste daily.`, stat:null }),
+      c=>({ hi:`बिना limit के उधार मत दो — cash flow मर जाता है।`, en:`Don't give unlimited credit — it kills your cash flow.`, stat:null }),
+      c=>({ hi:`पहले महीने के profit पे scale मत करो — वो honeymoon hota है।`, en:`Don't scale on month-one profit — that's just the honeymoon.`, stat:null }),
+      c=>({ hi:`Staff पे 100% निर्भर मत रहो — हर काम ख़ुद भी सीखो।`, en:`Never depend 100% on staff — learn every job yourself.`, stat:null })
+    ]},
+    { key:'quality', tag:L('⭐ Quality','Quality'), tips:[
+      c=>({ hi:`3 अलग customers की same शिकायत = आपका system ग़लत है।`, en:`3 customers, same complaint = your system is wrong.`, stat:{v:'3', hi:'same complaints = fix', en:'same complaints = fix'} }),
+      c=>({ hi:`"अंदाज़ा" नहीं, measuring use करो — scale + cup से consistency।`, en:`Don't guess, measure — scale + cup give consistency.`, stat:null }),
+      c=>({ hi:`Pehla batch ख़ुद taste/test करो — पहला ख़राब तो दिन ख़राब।`, en:`Taste/test the first batch yourself — a bad first batch ruins the day.`, stat:null })
+    ]},
+    { key:'customer', tag:L('❤️ Customer','Customer'), tips:[
+      c=>({ hi:`Customer का नाम याद रखो — free है, और सबसे powerful।`, en:`Remember your customer's name — free, and most powerful.`, stat:null }),
+      c=>{ const n=ri(c.r,8,12); return { hi:`Loyalty card: ${n} पे 1 free — ${c.hn} में बहुत चलता है।`, en:`Loyalty card: ${n}th one free — works great in ${c.en}.`, stat:{v:n+'→1', hi:'buy get free', en:'buy get free'} }; },
+      c=>({ hi:`नया customer लाना, पुराने को लौटाने से 5x महँगा है।`, en:`Winning a new customer costs 5x more than keeping an old one.`, stat:{v:'5x', hi:'new vs old cost', en:'new vs old cost'} })
+    ]},
+    { key:'legal', tag:L('📜 Paperwork','Paperwork'), tips:[
+      c=>({ hi:`Udyam Registration FREE है — 10 मिनट में online, MSME benefits मिलते हैं।`, en:`Udyam registration is free — online in 10 min, gives MSME benefits.`, stat:null }),
+      c=>({ hi:`${c.t.licenses[0]} सबसे पहले लो — fine से सस्ता है।`, en:`Get ${c.t.licenses[0]} first — it's cheaper than the fine.`, stat:null }),
+      c=>({ hi:`Business और personal पैसा अलग account में रखो।`, en:`Keep business and personal money in separate accounts.`, stat:null })
+    ]},
+    { key:'staff', tag:L('👥 Staff','Staff'), tips:[
+      c=>{ const n=ri(c.r,c.t.staff[0],c.t.staff[1]); const person=n===1?'व्यक्ति':'लोग'; return { hi:`शुरुआत में ${n} ${person} काफ़ी: ${c.t.staffRoles.slice(0,n).join(', ')}।`, en:`Start with ${n}: ${c.t.staffRoles.slice(0,n).join(', ')}.`, stat:{v:n, hi:'शुरुआती team', en:'starting team'} }; },
+      c=>({ hi:`Salary के साथ छोटा incentive रखो — output 20–30% बढ़ता है।`, en:`Add a small incentive to salary — output jumps 20–30%.`, stat:null }),
+      c=>({ hi:`Payment date कभी मत तोड़ो — एक बार late, trust ख़त्म।`, en:`Never miss payday — one late payment kills trust.`, stat:null })
+    ]},
+    { key:'local', tag:L('📍 Aapka Ilaka','Local'), tips:[
+      c=> c.region ? { hi:`${c.region.label} में ${c.region.festivals[0]} के समय demand ${ri(c.r,2,4)}x हो जाती है — पहले से तैयार रहो।`, en:`In ${c.region.label}, demand goes 2–4x during ${c.region.festivals[0]} — prepare early.`, stat:null } : { hi:`अपने 2 km radius का survey ख़ुद करो — वही असली data है।`, en:`Survey your 2 km radius yourself — that's the real data.`, stat:null },
+      c=> c.region ? { hi:`${c.region.city} जैसे शहर में rent कम, space ज़्यादा मिलता है — फ़ायदा उठाओ।`, en:`In cities like ${c.region.city}, rent is lower and space bigger — use it.`, stat:null } : { hi:`Local taste के हिसाब से 1–2 tweak करो — बाहर वाला copy मत करो।`, en:`Tweak 1–2 things for local taste — don't copy outsiders.`, stat:null },
+      c=>({ hi:`Local festival calendar ही आपका business calendar है।`, en:`Your local festival calendar is your business calendar.`, stat:null })
+    ]}
+  ];
+
+  function generateCard(area, regionText, index, userSeed) {
+    const t = resolveTopic(area);
+    const region = resolveRegion(regionText);
+    const seedStr = `${userSeed}|card|${t.key}|${area}|${index}`;
+    const r = mulberry32(hashStr(seedStr));
+    // pillar strictly rotate (consecutive alag), tip topic+index se vary
+    const pillar = CARD_PILLARS[index % CARD_PILLARS.length];
+    const tips = pillar.tips;
+    const tip = tips[(index + hashStr(t.key + area)) % tips.length];
+    const c = { t, region, r, hn: t.hindi, en: t.name };
+    const built = tip(c);
+    // fix any placeholder oddities
+    if (built.stat && built.en) built.en = built.en.replace(/\$\{\s*\}/g, '2–');
+    const audio = built.hi + ' ' + (built.stat ? built.stat.hi + ' ' + built.stat.v + '.' : '');
+    return {
+      id: hashStr(seedStr).toString(36) + '-' + index,
+      area, topic: t, region,
+      tag: pillar.tag,
+      tip: { hi: built.hi, en: built.en },
+      stat: built.stat || null,
+      audio,
+      emoji: t.emoji,
+      artSeed: hashStr(seedStr + 'art')
+    };
+  }
+
+  function generateCards(areas, regionText, count, userSeed, offset) {
+    offset = offset || 0;
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const idx = offset + i;
+      out.push(generateCard(areas[idx % areas.length], regionText, idx, userSeed));
+    }
+    return out;
+  }
+
   /* ================= POST GENERATOR ==================================== */
   function generatePost(area, regionText, index, userSeed) {
     const t = resolveTopic(area);
@@ -1368,6 +1477,7 @@
 
   global.DhandhaEngine = {
     generatePost, generateFeed, resolveTopic, resolveRegion,
+    generateCard, generateCards,
     SUGGESTIONS, PILLARS: PILLAR_ORDER, inr,
     _internal: { mulberry32, hashStr }
   };

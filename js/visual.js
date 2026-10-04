@@ -176,7 +176,10 @@
   }
 
   function toDataUri(svg) {
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    // encodeURIComponent ( ) ! ~ * ' ko chhod deta hai — unhe bhi encode karo
+    // taaki CSS url("...") me raw paren na aaye (kai parser safe rehte hain)
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+      .replace(/[!'()*~]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
   }
 
   /* A compact square variant for avatars / chips */
@@ -192,5 +195,24 @@
     </svg>`;
   }
 
-  global.DhandhaArt = { buildSvg, toDataUri, thumb, PALETTES, STYLES };
+  /* ---- Full-screen card background (no text, subtle emoji watermark) ---- */
+  function bg(post) {
+    const seed = post.artSeed;
+    const r = mulberry32(hashStr('bg' + seed));
+    const p = PALETTES[Math.floor(r() * PALETTES.length) % PALETTES.length];
+    const patKey = PATTERN_KEYS[Math.floor(r() * PATTERN_KEYS.length) % PATTERN_KEYS.length];
+    const W = 720, H = 1280;
+    let body = `<defs><linearGradient id="g" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="${p.bg1}"/><stop offset="100%" stop-color="${p.bg2}"/></linearGradient>
+      <filter id="b"><feGaussianBlur stdDeviation="30"/></filter></defs>
+      <rect width="${W}" height="${H}" fill="url(#g)"/>
+      <circle cx="${r()*W}" cy="${r()*H}" r="${260+r()*200}" fill="${p.acc}" opacity="0.14" filter="url(#b)"/>
+      <circle cx="${r()*W}" cy="${r()*H}" r="${200+r()*160}" fill="${p.acc2}" opacity="0.10" filter="url(#b)"/>
+      ${PATTERNS[patKey](r, p)}
+      <text x="${W/2}" y="${H*0.42}" text-anchor="middle" font-size="340" opacity="0.10">${post.emoji || '💡'}</text>
+      <rect x="0" y="${H*0.55}" width="${W}" height="${H*0.45}" fill="${p.bg1}" opacity="0.55"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${body}</svg>`;
+  }
+
+  global.DhandhaArt = { buildSvg, toDataUri, thumb, bg, PALETTES, STYLES };
 })(typeof window !== 'undefined' ? window : globalThis);
